@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<script>
+			let papers = [{title: "Paradise 1", path: "paradise 1"}];
+		</script>
 		<style>
 			:root {
 					/* US Letter = 8.5in x 11.0in;  EU A4 = 8.3in x 11.7in */
@@ -144,14 +147,8 @@
 		<div id="lines" class="lines"></div>
 		<div class="control-panel">
 			
-			<label for="file-picker">Image</label>
-			<select id="file-picker">
-				<option value="bible 1">Bible 1</option>
-				<option value="paradise 1">Paradise 1</option>
-				<option value="paradise 2">Paradise 2</option>
-				<option value="paradise 3">Paradise 3</option>
-				<option value="paradise 4">Paradise 4</option>
-			</select>
+			<label for="file-picker">Paper</label>
+			<select id="file-picker"></select>
 		
 			<span>Show writing guides</span>
 			<label>
@@ -179,6 +176,15 @@
 
 		document.getElementById('units-of-measure').innerHTML = getComputedStyle(document.documentElement).getPropertyValue('--units-of-measure').substring(2,99);
 		document.getElementById('guide-spacing').value = getComputedStyle(document.documentElement).getPropertyValue('--line-spacing-scale');
+
+		papers.forEach(paper => {
+			let option = document.createElement('option');
+				option.setAttribute('value', paper.path);
+				option.innerHTML = paper.title;
+			document.getElementById('file-picker').append(option);
+		});
+		document.getElementById('file-picker').value = papers[0].path;
+
 			
 		function loadCss() {
 			document.getElementById('paper-background').src = `images/no-image-found.png`;
@@ -247,7 +253,6 @@
 			}
 		});
 
-		document.getElementById('file-picker').value = 'bible 1';
 		document.getElementById('file-picker').dispatchEvent(new Event('change'));
 	</script>
 </html>
