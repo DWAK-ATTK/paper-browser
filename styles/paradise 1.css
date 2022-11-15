@@ -1,0 +1,10 @@
+:root {
+	--line-padding-bottom-scale: 0;
+	--line-padding-top-scale: 0.5;
+		
+	--line-padding-left: 0.0cm;
+	--line-padding-right: 0.0cm;
+
+	--img-z-index: 9999;
+}
+

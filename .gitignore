@@ -1,3 +1,5 @@
 # development css and images
 images/*.png
+!images/paradise 1.png
 styles/*.css
+!styles/paradise 1.css
