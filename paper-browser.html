@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			:root {
+					/* US Letter = 8.5in x 11.0in;  EU A4 = 8.3in x 11.7in */
+					--units-of-measure: 1in;											/* may be: 1in OR 1cm */
+					--paper-size-width-scale: 8.5;
+					--paper-size-width: calc(var(--paper-size-width-scale) * var(--units-of-measure));
+					--paper-size-height-scale: 11.0;
+					--paper-size-height: calc(var(--paper-size-height-scale) * var(--units-of-measure));
+
+					/* spacing between the horizontal writing guides */
+					--line-spacing-scale: 0.23;
+					--line-spacing: calc(var(--line-spacing-scale) * var(--spacing-units-of-measure));
+
+					--line-padding-bottom-scale: 0;
+					--line-padding-bottom: calc(var(--line-padding-bottom-scale) * var(--units-of-measure));
+					--line-padding-top-scale: 0.5;
+					--line-padding-top: calc(var(--line-padding-top-scale) * var(--units-of-measure));
+										
+					--line-padding-left: 0.5cm;
+					--line-padding-right: 4.0cm;
+
+					/* image z-index */
+					--img-z-index: 0;
+
+					/* writing line guide color (hex: RRGGBBAA) & width (px) */
+					--writing-guide-color: #00000010;
+					--writing-guide-width: 1px;
+
+					/* writing guide (lines) count */
+					--line-count  : calc((var(--paper-size-height-scale) / var(--line-spacing-scale)) - var(--line-padding-top) - var(--line-padding-bottom));
+			}
+		</style>
+		<link id="paper-style" href="" rel="stylesheet">
+		<style>
+			html, body {
+				margin: 0px;
+				padding: 0px;
+				background-color: #ffffff;
+
+				height: var(--paper-size-height);
+				width:   var(--paper-size-width);
+			}
+
+			img {
+				position: absolute;
+				height: var(--paper-size-height);
+				width:   var(--paper-size-width);
+				z-index: var(--img-z-index);
+			}
+
+			.lines {
+				display: grid;
+				grid-template-rows: repeat(var(--line-count), var(--line-spacing));
+
+				position: absolute;
+				top: var(--line-padding-top);
+				left: 0;
+				width: var(--paper-size-width);
+				height: calc(var(--paper-size-height) - var(--line-padding-top) - var(--line-padding-bottom));
+
+				box-sizing: border-box;
+
+				padding-left:  var(--line-padding-left);
+				padding-right: var(--line-padding-right);
+
+				z-index: 0;
+			}
+
+			/* the <b> element is symantically neutral */
+			b {
+				display:inline-block;
+				border-bottom: var(--writing-guide-width) solid var(--writing-guide-color);
+				width: calc(var(--paper-size-width) - var(--line-padding-left) - var(--line-padding-right));
+				
+			}
+
+
+
+			.instructions {
+				position: absolute;
+				display: block;
+				width: calc(var(--paper-size-width) * 75%);
+				height: 2rem;
+				top: 8in;
+				left: 12.5%;
+				color: #4053ff;
+				background-color: #FFFFFFCC;
+				border: 2px solid #1d3b69;
+				border-radius: 7px;
+				padding: 1rem;
+				padding-top: 2rem;
+				font-size: 1.0rem;
+				z-index: 100000;
+			}
+
+			.control-panel {
+				position: absolute;
+				display:grid;
+				grid-template-columns: 25% auto;
+				grid-template-rows: 1.2rem 1.2rem 1.2rem 1.2rem;
+				row-gap: 10px;
+				width: calc(var(--paper-size-width) * .75);
+				height: 7rem;
+				top: 3in;
+				left: 5.5%;
+				color: #000000;
+				background-color: #FFFFFFCC;
+				border: 2px solid #541d69;
+				border-radius: 7px;
+				padding: 1rem;
+				padding-top: 2rem;
+				font-size: 1.0rem;
+				z-index: 100000;
+				opacity: 0.0;
+			}
+
+			.control-panel:hover {
+				opacity: 1.0;
+			}
+
+			.d-none {display:none;}
+
+			
+			INPUT, SELECT {
+				border: 1px solid #cccccc;
+				height: 1.2rem;
+				border-radius: 4px;
+				margin: 0px;
+			}
+		</style>
+
+		<style media="print">
+			.control-panel {display:none;}
+			.instructions  {display:none;}
+		</style>
+	</head>
+
+
+	<body>
+		<img id="paper-background" src="" />
+		<div id="lines" class="lines"></div>
+		<div class="control-panel">
+			
+			<label for="file-picker">Image</label>
+			<select id="file-picker">
+				<option value="bible 1">Bible 1</option>
+				<option value="paradise 1">Paradise 1</option>
+				<option value="paradise 2">Paradise 2</option>
+				<option value="paradise 3">Paradise 3</option>
+				<option value="paradise 4">Paradise 4</option>
+			</select>
+		
+			<span>Show writing guides</span>
+			<label>
+				<input type="checkbox" id="show-writing-guides" checked />
+			</label>
+			
+		
+			<label for="line-size">Guide spacing</label>
+			<div>
+				<input id="guide-spacing" type="text" value="0.7" /> <span id="units-of-measure"></span>
+			</div>
+
+			<span>Show instructions</span>
+			<label>
+				<input type="checkbox" id="show-instructions" checked />
+			</label>
+		</div>
+		<div class="instructions">
+			Make sure you choose "None" for Margins in the print settings.
+		</div>
+	</body>
+
+	<script>
+		let root = document.querySelector(':root');
+
+		document.getElementById('units-of-measure').innerHTML = getComputedStyle(document.documentElement).getPropertyValue('--units-of-measure').substring(2,99);
+		document.getElementById('guide-spacing').value = getComputedStyle(document.documentElement).getPropertyValue('--line-spacing-scale');
+			
+		function loadCss() {
+			document.getElementById('paper-background').src = `images/no-image-found.png`;
+			document.getElementById('lines').innerHTML = ``;
+			let imageValue = document.getElementById('file-picker').value;
+			document.getElementById('paper-style').remove();
+
+			try {
+				let link = document.createElement('link');
+					link.setAttribute('id', 'paper-style');
+					link.setAttribute('rel', 'stylesheet');
+					link.setAttribute('href', `styles/${imageValue}.css`);
+					link.onload = function() { updateImage();};
+
+				document.getElementsByTagName('head')[0].appendChild(link);
+			} catch(err) {
+				alert(err);
+			}
+		}
+		function updateImage() {
+			let imageValue = document.getElementById('file-picker').value;
+			document.getElementById('paper-background').src = `images/${imageValue}.png`;
+
+			let bees = '';
+			let height = getComputedStyle(document.documentElement).getPropertyValue('--paper-size-height-scale');
+			let linePaddingTop = getComputedStyle(document.documentElement).getPropertyValue('--line-padding-top-scale');
+			let linepaddingBottom = getComputedStyle(document.documentElement).getPropertyValue('--line-padding-bottom-scale');
+			let lineHeight = getComputedStyle(document.documentElement).getPropertyValue('--line-spacing-scale');
+			let count = (Math.floor((height - linepaddingBottom - linePaddingTop)/lineHeight));
+			//alert(count);
+			for(let i=0; i < count; i++) {
+				bees += `<b></b>`;
+			}
+			document.getElementById('lines').innerHTML = bees;
+		}
+
+		document.getElementById('file-picker').addEventListener('change', (e) => {
+			let imageValue = document.getElementById('file-picker').value;
+			loadCss();
+		});
+
+		document.getElementById('guide-spacing').addEventListener('keyup', () => {
+			//console.info(`<****> ${document.getElementById('guide-spacing').value}`);
+			let spacing = parseFloat(document.getElementById('guide-spacing').value);
+			if (NaN != spacing && 0.0 < spacing) {
+				root.style.setProperty('--line-spacing-scale', spacing);
+				updateImage();
+			}
+		});
+
+		document.getElementById('show-writing-guides').addEventListener('change', (e) => {
+			let showGuides = document.getElementById('show-writing-guides').checked;
+			if (showGuides) {
+				document.getElementById('lines').classList.remove('d-none');
+			} else {
+				document.getElementById('lines').classList.add('d-none');
+			}
+		});
+
+		document.getElementById('show-instructions').addEventListener('change', (e) => {
+			let showInstructions = document.getElementById('show-instructions').checked;
+			if (showInstructions) {
+				document.getElementsByClassName('instructions')[0].classList.remove('d-none');
+			} else {
+				document.getElementsByClassName('instructions')[0].classList.add('d-none');
+			}
+		});
+
+		document.getElementById('file-picker').value = 'bible 1';
+		document.getElementById('file-picker').dispatchEvent(new Event('change'));
+	</script>
+</html>
